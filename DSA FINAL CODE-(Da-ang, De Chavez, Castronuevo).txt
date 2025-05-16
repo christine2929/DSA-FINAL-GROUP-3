@@ -1,0 +1,189 @@
+import datetime
+
+# Represents a medicine with name, price, expiry, and quantity.
+class Medicine:
+   def __init__(self, name, price, expiry_date, quantity):
+     self.name = name
+     self.price = price
+     self.expiry_date = expiry_date
+     self.quantity = quantity
+
+  def __repr__(self):
+      return f"Name: {self.name}, Price: {self.price}, Quantity: {self.quantity}, Expiry:
+{self.expiry_date}"
+
+# Checks if a string is a valid date in YYYY-MM-DD format.
+def is_valid_date(date_str):
+  try:
+      datetime.datetime.strptime(date_str, "%Y-%m-%d")
+      return True
+  except ValueError:
+      return False
+
+def is_valid_number(num_str):
+  try:
+      float(num_str)
+      return True
+  except ValueError:
+      return False
+
+#For medicine details and adds a new medicine to inventory lists, set, and dictionary.
+def add_medicine(inventory_list, inventory_set, inventory_dict_by_name):
+  while True:
+     name = input("Enter Medicine name: ").strip()
+     if not name:
+         print("Please enter a valid medicine name.")
+         continue
+     normalized_name = name.lower()
+     if normalized_name in (n.lower() for n in inventory_dict_by_name):
+         print(f"Medicine '{name}' already exists in the inventory")
+         return
+     break
+
+  while True:
+    price_str = input("Enter Price: ")
+     if not is_valid_number(price_str):
+         print("Please enter a valid price (number only).")
+         continue
+     price = float(price_str)
+     break
+
+  while True:
+    exp_date_str = input("Enter Expiration Date (YYYY-MM-DD): ")
+    if not is_valid_date(exp_date_str):
+        print("Please enter a valid date in YYYY-MM-DD format.")
+        continue
+    exp_date = exp_date_str
+    break
+
+  while True:
+    quantity_str = input("Enter Quantity: ")
+    if not is_valid_number(quantity_str):
+        print("Please enter a valid quantity (number only).")
+        continue
+    quantity = int(float(quantity_str))
+    break
+
+  new_medicine = Medicine(name, price, exp_date, quantity)
+  inventory_list.append(new_medicine)
+  inventory_set.add(name)
+  inventory_dict_by_name[name] = new_medicine
+  print(f"Medicine '{name}' Added to inventory with expiry: {exp_date}.")
+
+#For medicine name and removes it from all inventory data structures.
+def remove_medicine(inventory_list, inventory_set, inventory_dict_by_name):
+  name_to_remove = input("Enter Medicine name to remove: ").strip()
+  normalized_name_to_remove = name_to_remove.lower()
+  for stored_name, medicine in list(inventory_dict_by_name.items()):
+     if stored_name.lower() == normalized_name_to_remove:
+         inventory_dict_by_name.pop(stored_name)
+         inventory_list.remove(medicine)
+         inventory_set.remove(stored_name)
+         print(f"Medicine '{name_to_remove}' Removed from inventory")
+         return
+  print(f"Medicine '{name_to_remove}' Not found in inventory")
+
+#For medicine name and displays its details if found in the dictionary.
+def search_medicine(inventory_dict_by_name):
+  name_to_search = input("Enter Medicine name to search: ").strip()
+  normalized_name_to_search = name_to_search.lower()
+  for stored_name, medicine in inventory_dict_by_name.items():
+     if stored_name.lower() == normalized_name_to_search:
+         print(f"Medicine Name: {medicine.name}")
+         print(f"Price: {medicine.price}")
+         print(f"Quantity: {medicine.quantity}")
+         print(f"Expiry Date: {medicine.expiry_date}")
+         return
+  print(f"Medicine '{name_to_search}' Not found in inventory")
+
+#Sort the inventory list by expiry date.
+def sort_medicines(inventory_list):
+  if not inventory_list:
+      print("Inventory is empty.")
+      return
+
+  inventory_list.sort(key=lambda medicine: medicine.expiry_date)
+  print("Medicine Inventory")
+  for medicine in inventory_list:
+     print(medicine)
+
+#For medicine name and an amount to add to its quantity in the dictionary.
+def restock_medicine(inventory_dict_by_name):
+   name_to_restock = input("Enter Medicine name to restock: ").strip()
+   normalized_name_to_restock = name_to_restock.lower()
+   for stored_name, medicine in inventory_dict_by_name.items():
+      if stored_name.lower() == normalized_name_to_restock:
+          while True:
+             amount_str = input("Enter amount to add: ")
+             if not is_valid_number(amount_str):
+                 print("Please enter a valid amount (number only).")
+                 continue
+             amount = int(float(amount_str))
+             break
+          inventory_dict_by_name[stored_name].quantity += amount
+          print(f"Medicine '{name_to_restock}' restocked. New quantity:
+{inventory_dict_by_name[stored_name].quantity}")
+          return
+   print(f"Medicine '{name_to_restock}' Not found in inventory")
+
+#List of all medicine names currently in the inventory.
+def show_inventory(inventory_list):
+  if not inventory_list:
+      print("Inventory is empty.")
+     return
+  medicine_names = sorted([medicine.name for medicine in inventory_list], key=str.lower)
+  print("Current Medicine Inventory")
+  for name in medicine_names:
+     print(f"- {name}")
+
+#Initializes inventory data structures, adds initial medicines, and runs the main menu loop for
+inventory operations.
+def main():
+   inventory_list = []
+   inventory_set = set()
+   inventory_dict_by_name = {}
+
+  medicine1 = Medicine("Aspirin", 2.00, "2027-01-15", 100)
+  medicine2 = Medicine("Cough Syrup", 5.50, "2026-08-20", 60)
+  medicine3 = Medicine("Band-aids", 3.00, "2028-03-10", 150)
+
+  inventory_list.extend([medicine1, medicine2, medicine3])
+  inventory_set.update([medicine1.name, medicine2.name, medicine3.name])
+  inventory_dict_by_name[medicine1.name] = medicine1
+  inventory_dict_by_name[medicine2.name] = medicine2
+  inventory_dict_by_name[medicine3.name] = medicine3
+
+  while True:
+    print("\nWelcome to MediStock A Smart Pharmacy Inventory System")
+    print("Choose an option:")
+    print("1. Add medicine")
+    print("2. Remove medicine")
+    print("3. Search medicine")
+    print("4. Sort medicine")
+    print("5. Restock medicine")
+    print("6. Show/Display medicine")
+    print("7. Exit")
+
+     choice = input("Enter your choice (1-7): ")
+
+     if choice == '1':
+         add_medicine(inventory_list, inventory_set, inventory_dict_by_name)
+     elif choice == '2':
+         remove_medicine(inventory_list, inventory_set, inventory_dict_by_name)
+     elif choice == '3':
+         search_medicine(inventory_dict_by_name)
+     elif choice == '4':
+         sort_medicines(inventory_list)
+    elif choice == '5':
+       restock_medicine(inventory_dict_by_name)
+    elif choice == '6':
+       show_inventory(inventory_list)
+    elif choice == '7':
+       print("Exiting system. Goodbye!")
+       break
+    else:
+       print("Invalid choice. Please enter a number between 1 and 7.")
+
+if __name__ == "__main__":
+    main()
+
